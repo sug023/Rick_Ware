@@ -1,2 +1,2 @@
-# Rick_Ware
-A collection of my personal projects during my apprenticeship in malware development.
+# DISCLAIMER:
+This script is provided for educational and research purposes only. The author assumes no responsibility for any misuse, damage, or illegal activity caused by the use of this code. Use it at your own risk and ensure compliance with all applicable laws and regulations.

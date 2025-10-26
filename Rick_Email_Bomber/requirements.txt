@@ -1,0 +1,3 @@
+# No external packages required — uses Python standard library
+# Recommended Python version:
+# Python>=3.8
