@@ -1,78 +1,117 @@
-# README for KeyLogger
+# 📝 Rick_Logger 🔑
+*Part of the [Rick_Ware](https://github.com/sug023/Rick_Ware) toolkit*
 
-## Description
+Rick_Logger is a **persistent keylogging and monitoring tool** intended for **educational and authorized security testing purposes only**.  
+It captures keystrokes and can send them to a webhook endpoint, helping developers and security professionals analyze input patterns during authorized testing. 💻🔒  
 
-`KeyLogger` is a Python script designed to log keystrokes from the user's keyboard and send the logged data to a specified Discord webhook. It includes features for persistence and can run in the background, logging keys even after a system reboot.
+> ⚠️ Use only on systems you own or have explicit permission to test. Unauthorized use is illegal.
 
-## Features
+---
 
-- **Keystroke Logging**: Captures and logs all keystrokes, including special keys and modifiers (Ctrl, Alt, Shift).
-- **Discord Webhook Integration**: Sends logged data to a specified Discord webhook.
-- **Persistence**: Can add itself to the Windows startup folder to ensure it runs on system startup.
-- **Debug Mode**: Provides detailed debug information if enabled.
-- **Threading**: Uses threading to run the key logger and data sender concurrently.
+## ⚙️ Features
 
-## Requirements
+✅ **Persistent execution** — Automatically adds itself to Windows startup.  
+✅ **Keystroke monitoring** — Records all key presses in real-time.  
+✅ **Webhook integration** — Sends captured keystrokes to a specified endpoint.  
+✅ **Modifier key detection** — Detects Ctrl, Alt, and Shift combinations.  
+✅ **Threaded architecture** — Runs key listening in a background thread.  
+✅ **Debug mode** — Verbose output for testing and monitoring.  
 
-- Python 3.x
-- Additional libraries: `time`, `threading`, `requests`, `keyboard`, `os`, `sys`, `shutil`, `winshell`
+---
 
-## Installation
+## 🧩 Requirements
 
-1. Ensure you have Python 3.x installed on your system.
-2. Install the necessary libraries:
-   ```bash
-   pip install requests keyboard
-   ````
-## Usage
+- 🐍 **Python 3.7+**  
+- 📦 **pip**  
+- 🪟 **Windows OS**  
+- 🖱️ **Keyboard library** (`pip install keyboard`)  
+- 📡 **Requests library** (`pip install requests`)  
+- ⚙️ **Winshell** (`pip install winshell`)  
 
-### Configuration
+> The script will also automatically handle debug messages when enabled.
 
-- Set the `webhook` variable to your Discord webhook URL.
-- Set the `debug` variable to `True` to enable debug mode.
+---
 
-### Running the Script
+## 📁 Installation
 
-1. Run the script:
-    
-    bash
-    
+Clone the main Rick_Ware repository and navigate to this tool’s directory:  
 
-2. ```bash
-    python key_logger.py
-    ```
-    
-3. The script will start logging keystrokes and sending data to the specified Discord webhook.
-4. To stop the script, press `Ctrl+C` in the terminal.
+```bash
+git clone https://github.com/sug023/Rick_Ware
+cd Rick_Ware/Rick_Logger
+```
 
-## Internal Workings
+Or download the `Rick_Logger.py` file directly.
 
-### Class `PersistenceManager`
+---
 
-- **`__init__`**: Initializes the instance with the debug setting.
-- **`add_to_startup`**: Adds the script to the Windows startup folder to ensure it runs on system startup.
-- **`run`**: Executes the persistence logic.
+## 🚀 Usage
 
-### Class `KeyLogger`
+1. Open `Rick_Logger.py` in Python.  
+2. Set your **webhook URL** in the `WEBHOOK_URL` variable.  
+3. Enable `DEBUG = True` if you want verbose logs.  
+4. Run the script:
 
-- **`__init__`**: Initializes the instance with the webhook URL, debug setting, and other parameters.
-- **`listen_keys`**: Listens for keystrokes and appends them to the `keys_chain` list. Sends data to the webhook when the Enter key is pressed.
-- **`send_data`**: Sends the logged keystrokes to the specified Discord webhook.
-- **`send_to_discord_loop`**: Runs a loop to send data to the webhook at regular intervals.
-- **`run`**: Starts the key logger and data sender threads.
+```bash
+python Rick_Logger.py
+```
 
-### Function `main`
+5. The script will start listening for key input in the background and send formatted keystrokes to the webhook endpoint.  
 
-- **`main`**: The main function that initializes the `KeyLogger` and `PersistenceManager` and handles the main loop of the script.
+> The keylogger will also try to persist by copying itself to the Windows startup folder.
 
-## Notes
+---
 
-- This script is designed to work on Windows systems due to its use of `winshell` for startup persistence.
-- The `keyboard` library is used for capturing keystrokes.
-- The `requests` library is used for sending data to the Discord webhook.
-- Ensure that the Discord webhook URL is correct and that the webhook is configured to receive messages.
-- The script clears the screen before prompting for user input to keep the interface clean.
-- The delay between sending emails can be adjusted to avoid rate limiting by email servers.
+## 🧠 How It Works
 
-# DISCLAIMER:
-This script is provided for educational and research purposes only. The author assumes no responsibility for any misuse, damage, or illegal activity caused by the use of this code. Use it at your own risk and ensure compliance with all applicable laws and regulations.
+1. **Persistence**: Copies the script or executable to the Windows startup directory.  
+2. **Key monitoring**: Listens to all key events using the `keyboard` library.  
+3. **Data formatting**: Converts keys and modifiers into readable strings (e.g., `[CTRL + A]`, `[ENTER]`).  
+4. **Webhook delivery**: Sends formatted keystrokes to the configured webhook.  
+5. **Threading**: Runs the key listening loop in a daemon thread, so the main program remains responsive.  
+
+---
+
+## 🧰 Example Output
+
+```text
+[ LISTENING FOR KEY INPUTS ]
+[DEBUG] Key pressed: a
+[DEBUG] Key pressed: enter
+[+] Data sent successfully (HTTP 204) [+]
+```
+
+---
+
+## 💡 Tips
+
+- Use `DEBUG = True` during testing to see key presses and webhook delivery.  
+- Only run on authorized machines to stay compliant with the law.  
+- For advanced monitoring, you can combine this with other Rick_Ware tools.  
+
+---
+
+## ⚠️ Legal Notice
+
+**Rick_Logger is intended for ethical hacking, penetration testing, and educational purposes only.**  
+Never run this on computers without explicit permission — doing so is illegal and punishable by law.
+
+---
+
+## 🧑‍💻 Author
+
+**Developed with by [sug023](https://github.com/sug023)**  
+💬 Contributions, feedback, and feature requests are welcome.
+
+---
+
+## 📜 License
+
+Licensed under the **MIT License** — free to use, modify, and distribute.
+
+---
+
+## 🌟 Support the Project
+
+If Rick_Logger helped you learn or streamline testing, give the repository a ⭐ on GitHub! 🙌  
+Your support helps grow the **Rick_Ware toolkit**.

@@ -1,67 +1,103 @@
-# README for KBTroller
+# 🎹 KB_Troller
+*Part of the [Rick_Ware](https://github.com/sug023/Rick_Ware) toolkit*
 
-## Description
+KB_Troller is a **keyboard-triggered prank tool** intended for **educational and authorized security testing purposes only**.  
+It opens a URL and optionally raises system volume when a random letter is pressed. 💻🎉  
 
-`KBTroller` is a Python script that opens a specific URL when a random letter is pressed on the keyboard. Additionally, it can increase the system volume and be configured to run automatically at system startup.
+> ⚠️ Use only on systems you own or have explicit permission to test. Unauthorized use is illegal.
 
-## Features
+---
 
-- **URL Opening**: Opens a specific URL when a random letter is pressed.
-- **Volume Control**: Can increase the system volume in 2% increments.
-- **Persistence**: Can copy itself to the startup folder to run automatically at system startup.
+## ⚙️ Features
 
-## Requirements
+✅ **Random letter trigger** — Executes actions when a specific letter is pressed.  
+✅ **URL opener** — Opens a configured link in the default browser.  
+✅ **Volume control** — Optionally raises system volume on Windows.  
+✅ **Persistence** — Can copy itself to Windows Startup folder.  
+✅ **Threaded debounce** — Prevents multiple triggers on a single key press.  
+✅ **Debug mode** — Shows verbose messages for testing.  
 
-- Python 3.x
-- Additional libraries: `webbrowser`, `threading`, `pynput`, `os`, `sys`, `shutil`, `ctypes`, `winshell` (optional)
+---
 
-## Installation
+## 🧩 Requirements
 
-1. Ensure you have Python 3.x installed on your system.
-2. Install the necessary libraries:
+- 🐍 **Python 3.7+**  
+- 📦 **pip**  
+- 🪟 **Windows OS** (for volume control and persistence)  
+- 🖱️ **pynput** (`pip install pynput`)  
+- ⚙️ **Winshell** (`pip install winshell`) (optional, for startup persistence)  
 
-   ```bash
-   pip install pynput
-```
-## Example of usage
+---
 
-```python
-kb = KBTroller(url="https://ia801502.us.archive.org/27/items/y-2-mate.is-rick-astley-never-gonna-give-you-up-remastered-4-k-60fps-ai-o-ybdtq-/Y2Mate.is%20-%20Rick%20Astley%20-%20Never%20Gonna%20Give%20You%20Up%20%28Remastered%204K%2060fps%2CAI%29-o-YBDTqX_ZU-1080p-1658021729392.mp4", vol=True, persistence=False, debug=False)
-kb.run()
-```
+## 📁 Installation
 
-### Parameters
-
-- `url` (str): The URL that will be opened when the random letter is pressed. If empty, no URL will be opened.
-- `vol` (bool): If `True`, it will attempt to increase the system volume.
-- `persistence` (bool): If `True`, it will attempt to copy the executable to the startup folder to run automatically at system startup.
-- `debug` (bool): If `True`, it will print debugging messages.
-
-## Internal Workings
-
-### Class `KBTroller`
-
-- **`__init__`**: Initializes the instance with the provided parameters and selects a random letter.
-- **`get_letter`**: Selects a random letter from the alphabet and prints it if debugging mode is enabled.
-- **`open_url`**: Opens the specified URL using the `webbrowser` module.
-- **`_on_press`**: Handles key presses, checking if the pressed key matches the target letter. If it matches, it performs the configured actions (open URL, increase volume).
-- **`on_release`**: Handles key releases.
-- **`set_volume_max`**: Increases the volume using `ctypes`. Each call increases the volume by one step (~2%).
-- **`add_to_startup`**: Copies the script to the startup folder to ensure it runs at system startup.
-- **`run`**: Starts the key listener and performs the configured actions when the target letter is pressed.
-
-## Notes
-
-- This script is designed to work on Windows systems due to its use of `ctypes` and `winshell` for volume control and startup persistence, respectively.
-- The `pynput` library is used for keyboard event handling.
-## Installation
-
-1. Ensure you have Python 3.x installed on your system.
-2. Install the necessary libraries
+Clone the Rick_Ware repository and navigate to this tool's folder:  
 
 ```bash
-pip install pynput
+git clone https://github.com/sug023/Rick_Ware
+cd Rick_Ware/KB_Troller
 ```
 
-# DISCLAIMER:
-This script is provided for educational and research purposes only. The author assumes no responsibility for any misuse, damage, or illegal activity caused by the use of this code. Use it at your own risk and ensure compliance with all applicable laws and regulations.
+Or download the `KB_Troller.py` file directly.
+
+---
+
+## 🚀 Usage
+
+1. Open `KB_Troller.py` in Python.  
+2. Configure parameters in the constructor:  
+   - `url`: URL to open when the target letter is pressed.  
+   - `vol`: `True` to increase volume.  
+   - `persistence`: `True` to copy script to Windows Startup.  
+   - `debug`: `True` to print debug messages.  
+3. Run the script:
+
+```bash
+python KB_Troller.py
+```
+
+4. The script listens for the random target letter and triggers actions when pressed.
+
+---
+
+## 🧠 How It Works
+
+1. **Random letter selection** — Chooses a letter from a-z for triggering actions.  
+2. **Keyboard monitoring** — Listens to all key presses using `pynput`.  
+3. **Debounce** — Prevents multiple triggers from a single press.  
+4. **Actions** — Opens a URL and optionally raises system volume using Windows API.  
+5. **Persistence** — Copies itself to Startup folder if enabled.  
+
+---
+
+## 💡 Tips
+
+- Use `debug=True` during testing to see key presses and actions in the console.  
+- Only run on authorized machines to stay legal.  
+- Combine with other Rick_Ware tools for fun or testing purposes.  
+
+---
+
+## ⚠️ Legal Notice
+
+**KB_Troller is intended for ethical hacking, penetration testing, and educational purposes only.**  
+Never run this on computers without explicit permission — doing so is illegal.
+
+---
+
+## 🧑‍💻 Author
+
+**Developed with by [sug023](https://github.com/sug023)**  
+💬 Contributions, feedback, and feature requests are welcome.
+
+---
+
+## 📜 License
+
+Licensed under the **MIT License** — free to use, modify, and distribute.
+
+---
+
+## 🌟 Support
+
+If KB_Troller helped you learn or test ideas, give the repository a ⭐ on GitHub! 🙌
